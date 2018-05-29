@@ -1,0 +1,122 @@
+import simpy
+import random
+
+ALL_STATIONS = {}
+
+NUM_STATIONS = 2
+
+def out_distri_uniform(a, b):
+    return random.randint(a, b)
+
+def getStationFromIndex(idx):
+    return ALL_STATIONS[idx]
+
+def computeTransitionTime(start, end):
+    distance = computeDistance(start, end)
+
+    ''' The distribution would be modified upon hypothesis '''
+    lower = min(1, distance - 2)
+    return out_distri_uniform(lower, distance + 1) + 0.5
+    ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
+
+def computeDistance(start, end):
+    xs, sy = start.getPosition()
+    es, ey = end.getPosition()
+    return abs(xs - es) + abs(sy - ey)
+
+def generateDispatcherDestination(start):
+    pass
+
+def bikeScheduler(remains, rewards):
+    return schedules # A set of how much bikes for each station
+
+class Buffer:
+    def __init__(self):
+        self.buffer = []
+
+    def push(self, elem):
+        self.buffer.append(elem)
+
+    def pop(self):
+        assert(len(self.buffer) != 0)
+        return self.buffer.pop(0)
+
+class Map:
+    def __init__(self, env):
+        self.env = env
+        for i in range(NUM_STATIONS):
+            pos_x = i
+            pos_y = i + 1
+            init_bike = 100
+            ALL_STATIONS[i] = Station(env, (pos_x, pos_y), i, init_bike)
+
+class Station:
+    def __init__(self, env, position, idx, initial):
+        self.env = env
+        self.position = position # Position should be a tuple (x, y)
+        self.idx = idx
+        self.bikes = simpy.Container(env, init = initial)
+        self.buf = Buffer()
+
+        self.process = env.process(self.run())
+        self.dispatcher = env.process(self.dispatcher())
+        self.going = env.event()
+
+    def run(self):
+        while True:
+            yield self.env.process(self.one_day())
+            yield self.env.timeout(20)
+
+    def dispatcher(self):
+        while True:
+            yield self.going
+            
+            # generateDispatcherDestination(self)
+            sid = self.idx ^ 1
+            s = getStationFromIndex(sid)
+            yield self.env.timeout(computeTransitionTime(self, s))
+            s.bikes.put(self.buf.pop())
+
+    def one_day(self):
+        for _ in range(72):
+            # Going out
+            print("time: " + str(self.env.now))
+            print(str(self.idx)+": "+str(self.bikes.level))
+
+            ''' The distribution would be modified upon hypothesis '''
+            outBike = out_distri_uniform(1, 20)
+            ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
+
+            if outBike <= self.bikes.level:
+                yield self.bikes.get(outBike)
+            else:
+                if self.bikes.level != 0:
+                    outBike = self.bikes.level
+                    yield self.bikes.get(outBike)
+                else:
+                    outBike = 0
+
+            print("time: " + str(self.env.now))
+            print(str(self.idx)+": "+str(self.bikes.level))
+
+            # Dispatcher
+            self.buf.push(outBike)
+            self.going.succeed()
+            self.going = self.env.event()
+
+            # State unit time
+            yield self.env.timeout(10)
+
+    def getPosition(self):
+        return self.position
+
+    def getIndex(self):
+        return self.idx
+
+def main():
+    env = simpy.Environment()
+    Map(env)
+    env.run(until=720)
+
+if __name__ == '__main__':
+    main()
