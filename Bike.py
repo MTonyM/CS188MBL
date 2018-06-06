@@ -24,11 +24,22 @@ def computeDistance(start, end):
     es, ey = end.getPosition()
     return abs(xs - es) + abs(sy - ey)
 
-def generateDispatcherDestination(start):
-    pass
+def generateDispatcherDistribution(start):
+    start_id = start.getIndex()
+    for station in ALL_STATIONS:
+        end_id = station.getIndex()
+        if start_id == end_id:
+
+def generateDispatcherNumbers(start, nBikes):
+    if start.dispatch_distribution = None:
+        generateDispatcherDistribution(start)
+    # generate number of bikes
 
 def bikeScheduler(remains, rewards):
     return schedules # A set of how much bikes for each station
+
+def scheduler(env):
+    pass # The process scheduling the bikes at the end of the day
 
 class Buffer:
     def __init__(self):
@@ -57,6 +68,7 @@ class Station:
         self.idx = idx
         self.bikes = simpy.Container(env, init = initial)
         self.buf = Buffer()
+        self.dispatch_distribution = None
 
         self.process = env.process(self.run())
         self.dispatcher = env.process(self.dispatcher())
@@ -71,7 +83,7 @@ class Station:
         while True:
             yield self.going
             
-            # generateDispatcherDestination(self)
+            # generateDispatcherNumbers(self,self.buf.pop())
             sid = self.idx ^ 1
             s = getStationFromIndex(sid)
             yield self.env.timeout(computeTransitionTime(self, s))
