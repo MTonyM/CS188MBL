@@ -1,5 +1,6 @@
 import simpy
 import random
+import math
 
 ALL_STATIONS = {}
 
@@ -7,6 +8,9 @@ NUM_STATIONS = 2
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
+
+def normalize(distribution):
+    pass
 
 def getStationFromIndex(idx):
     return ALL_STATIONS[idx]
@@ -26,13 +30,27 @@ def computeDistance(start, end):
 
 def generateDispatcherDistribution(start):
     start_id = start.getIndex()
+    distribution = {}
     for station in ALL_STATIONS:
         end_id = station.getIndex()
+
+        # Not going to the start station
         if start_id == end_id:
+            continue
+
+        ''' The distribution would be modified upon hypothesis '''
+        distance = computeDistance(start, station)
+        distribution[end_id] = math.exp(-0.5 * distance)
+        ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
+
+    # Normalize the distribution
+    distribution = normalize(distribution)
+
+    return distribution
 
 def generateDispatcherNumbers(start, nBikes):
     if start.dispatch_distribution = None:
-        generateDispatcherDistribution(start)
+        start.dispatch_distribution = generateDispatcherDistribution(start)
     # generate number of bikes
 
 def bikeScheduler(remains, rewards):
