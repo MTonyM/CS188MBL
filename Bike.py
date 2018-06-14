@@ -124,9 +124,12 @@ class Station:
             yield self.going
             
             scheme = generateDispatcherNumbers(self,self.buf.pop())
-            order = {}
+            preorder = {}
             for sid in scheme.keys():
-                order[sid] = computeTransitionTime(self, ALL_STATIONS[sid])
+                preorder[sid] = computeTransitionTime(self, ALL_STATIONS[sid])
+
+            # Dispatch bikes
+            order = sorted(preorder.items(), key = lambda item:item[1])
 
             # sid = self.idx ^ 1
             # s = getStationFromIndex(sid)
