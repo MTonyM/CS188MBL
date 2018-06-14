@@ -10,7 +10,13 @@ def out_distri_uniform(a, b):
     return random.randint(a, b)
 
 def normalize(distribution):
-    pass
+    s = 0
+    nDistribution = {}
+    for location in distribution.keys():
+        s += distribution[location]
+    for location in distribution.keys():
+        nDistribution[location] = distribution[location] / s
+    return nDistribution
 
 def getStationFromIndex(idx):
     return ALL_STATIONS[idx]
