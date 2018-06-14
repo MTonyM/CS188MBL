@@ -57,7 +57,23 @@ def generateDispatcherDistribution(start):
 def generateDispatcherNumbers(start, nBikes):
     if start.dispatch_distribution = None:
         start.dispatch_distribution = generateDispatcherDistribution(start)
-    # generate number of bikes
+
+    # generate number of bikes using sampling
+    numbers = {}
+    for _ in range(nBikes):
+        sample = random.random()
+        possiblility = 0
+        for location in start.dispatch_distribution.keys():
+            possiblility += start.dispatch_distribution[location]
+            if sample < possiblility:
+                # Add a sample
+                if location in numbers.keys():
+                    numbers[location] += 1
+                else:
+                    numbers[location] = 1
+                break
+
+    return numbers
 
 def bikeScheduler(remains, rewards):
     return schedules # A set of how much bikes for each station
