@@ -37,7 +37,7 @@ def computeDistance(start, end):
 def generateDispatcherDistribution(start):
     start_id = start.getIndex()
     distribution = {}
-    for station in ALL_STATIONS:
+    for station in ALL_STATIONS.values():
         end_id = station.getIndex()
 
         # Not going to the start station
@@ -55,7 +55,7 @@ def generateDispatcherDistribution(start):
     return distribution
 
 def generateDispatcherNumbers(start, nBikes):
-    if start.dispatch_distribution = None:
+    if start.dispatch_distribution == None:
         start.dispatch_distribution = generateDispatcherDistribution(start)
 
     # generate number of bikes using sampling
@@ -123,11 +123,15 @@ class Station:
         while True:
             yield self.going
             
-            # generateDispatcherNumbers(self,self.buf.pop())
-            sid = self.idx ^ 1
-            s = getStationFromIndex(sid)
-            yield self.env.timeout(computeTransitionTime(self, s))
-            s.bikes.put(self.buf.pop())
+            scheme = generateDispatcherNumbers(self,self.buf.pop())
+            order = {}
+            for sid in scheme.keys():
+                order[sid] = computeTransitionTime(self, ALL_STATIONS[sid])
+
+            # sid = self.idx ^ 1
+            # s = getStationFromIndex(sid)
+            # yield self.env.timeout(computeTransitionTime(self, s))
+            # s.bikes.put(self.buf.pop())
 
     def one_day(self):
         for _ in range(72):
