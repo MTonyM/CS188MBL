@@ -130,11 +130,12 @@ class Station:
 
             # Dispatch bikes
             order = sorted(preorder.items(), key = lambda item:item[1])
-
-            # sid = self.idx ^ 1
-            # s = getStationFromIndex(sid)
-            # yield self.env.timeout(computeTransitionTime(self, s))
-            # s.bikes.put(self.buf.pop())
+            time = 0
+            for dest in order:
+                yield self.env.timeout(dest[1] - time)
+                time = dest[1]
+                s = getStationFromIndex(dest[0])
+                s.bikes.put(scheme[dest[0]])
 
     def one_day(self):
         for _ in range(72):
