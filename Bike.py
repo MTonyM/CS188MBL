@@ -4,7 +4,9 @@ import math
 
 ALL_STATIONS = {}
 
-NUM_STATIONS = 2
+NUM_STATIONS = 3
+
+CALL_SCHEDULER = [NUM_STATIONS]
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
@@ -91,6 +93,9 @@ class Buffer:
     def pop(self):
         assert(len(self.buffer) != 0)
         return self.buffer.pop(0)
+
+    def isNULL(self):
+        return len(self.buffer) == 0
 
 class Map:
     def __init__(self, env):
