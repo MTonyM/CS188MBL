@@ -21,14 +21,6 @@ def init():
     # New axis over the whole figure, no frame and a 1:1 aspect ratio
     ax = fig.add_axes([0, 0, 1, 1], frameon = False, aspect = 1)
 
-    # Ring position
-    #pos = np.random.uniform(0, 1, (NS, 2))
-
-    # Ring colors
-    # color = np.ones((NS, 4)) * (0, 0, 0, 1)
-    # Alpha color channel goes from 0(transparent) to 1(opaque)
-    # color[:,3] = np.linspace(0, 1, NS)
-
     # Ring sizes
     size = np.linspace(SIZE_MIN, SIZE_MAX, NS)
 
@@ -42,17 +34,12 @@ def init():
 def update(frame):
     global size
 
-    # Every ring is made more transparnt
-    # color[:, 3] = np.maximum(0, color[:,3]-1.0/NS)
-
     # Each ring is made larger
     size += (SIZE_MAX - SIZE_MIN) / NS
 
     # Reset specific ring
     i = frame % 50
-    # pos[i] = np.random.uniform(0, 1, 2)
     size[i] = SIZE_MIN
-    # color[i, 3] = 1
 
     # Update scatter object
     scat.set_edgecolors(color)
