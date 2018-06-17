@@ -12,6 +12,9 @@ NS = 50
 
 pos = np.random.uniform(0, 1, (NS, 2))
 color = np.ones((NS, 4)) * (0, 0, 0, 1)
+color[:,0] = np.linspace(0, 1, NS)
+color[:,1] = np.linspace(0, 1, NS)
+color[:,2] = np.linspace(0, 1, NS)
 
 fig = plt.figure(num = "Bike Simulation", figsize=(6,6), facecolor='white')
 
