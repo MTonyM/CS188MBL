@@ -6,48 +6,49 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 
-# New figure with white background
-fig = plt.figure(figsize=(6,6), facecolor='white')
+SIZE_MIN = 50
+SIZE_MAX = 50 ** 2
+NS = 50
 
-# New axis over the whole figure, no frame and a 1:1 aspect ratio
-ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1)
+fig = plt.figure(num = "Bike Simulation", figsize=(6,6), facecolor='white')
 
-# Number of ring
-n = 50
-size_min = 50
-size_max = 50 ** 2
+def init():
+    global pos, color, size, scat
 
-# Ring position
-pos = np.random.uniform(0, 1, (n,2))
+    # New axis over the whole figure, no frame and a 1:1 aspect ratio
+    ax = fig.add_axes([0, 0, 1, 1], frameon=False, aspect=1)
 
-# Ring colors
-color = np.ones((n,4)) * (0,0,0,1)
-# Alpha color channel geos from 0(transparent) to 1(opaque)
-color[:,3] = np.linspace(0, 1, n)
+    # Ring position
+    pos = np.random.uniform(0, 1, (NS, 2))
 
-# Ring sizes
-size = np.linspace(size_min, size_max, n)
+    # Ring colors
+    color = np.ones((NS, 4)) * (0, 0, 0, 1)
+    # Alpha color channel geos from 0(transparent) to 1(opaque)
+    color[:,3] = np.linspace(0, 1, NS)
 
-# Scatter plot
-scat = ax.scatter(pos[:,0], pos[:,1], s=size, lw=0.5, edgecolors=color, facecolors='None')
+    # Ring sizes
+    size = np.linspace(SIZE_MIN, SIZE_MAX, NS)
 
-# Ensure limits are [0,1] and remove ticks
-ax.set_xlim(0, 1), ax.set_xticks([])
-ax.set_ylim(0, 1), ax.set_yticks([])
+    # Scatter plot
+    scat = ax.scatter(pos[:,0], pos[:,1], s=size, lw=0.5, edgecolors=color, facecolors='None')
+
+    # Ensure limits are [0,1] and remove ticks
+    ax.set_xlim(0, 1), ax.set_xticks([])
+    ax.set_ylim(0, 1), ax.set_yticks([])
 
 def update(frame):
     global pos, color, size
 
     # Every ring is made more transparnt
-    color[:, 3] = np.maximum(0, color[:,3]-1.0/n)
+    color[:, 3] = np.maximum(0, color[:,3]-1.0/NS)
 
     # Each ring is made larger
-    size += (size_max - size_min) / n
+    size += (SIZE_MAX - SIZE_MIN) / NS
 
     # Reset specific ring
     i = frame % 50
     pos[i] = np.random.uniform(0, 1, 2)
-    size[i] = size_min
+    size[i] = SIZE_MIN
     color[i, 3] = 1
 
     # Update scatter object
@@ -58,20 +59,13 @@ def update(frame):
     # Return the modified object
     return scat,
 
-# fig = plt.figure()
-# data = np.random.random((255, 255))
-# im = plt.imshow(data, cmap='gray')
-
-# def animate(i):
-#     data = np.random.random((255, 255))
-#     im.set_array(data)
-#     return [im]
+def showAnimation():
+    init()
+    anim = animation.FuncAnimation(fig, update, interval = 10, blit = True, frames = 200)
+    plt.show()
 
 def main():
-    # anim = animation.FuncAnimation(fig, animate, frames=200, interval=60, blit=True)
-    # plt.show()
-    anim = animation.FuncAnimation(fig, update, interval=10, blit=True, frames=200)
-    plt.show()
+    showAnimation()
 
 if __name__ == '__main__':
     main()
