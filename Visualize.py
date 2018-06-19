@@ -1,4 +1,5 @@
 # https://blog.csdn.net/theonegis/article/details/51037850
+# http://www.labri.fr/perso/nrougier/teaching/matplotlib/
 
 ''' This file is used to generate animation'''
 
@@ -41,8 +42,11 @@ def update(frame):
     size += (SIZE_MAX - SIZE_MIN) / NS
 
     # Reset specific ring
-    i = frame % NS
-    size[i] = SIZE_MIN
+    # i = frame % NS
+    # size[i] = SIZE_MIN
+    if frame % 50 == 0:
+        for i in range(NS):
+            size[i] = SIZE_MIN
 
     # Update scatter object
     scat.set_edgecolors(color)
