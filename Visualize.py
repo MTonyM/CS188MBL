@@ -8,7 +8,7 @@ from matplotlib import animation
 
 SIZE_MIN = 50
 SIZE_MAX = 50 ** 2
-NS = 50
+NS = 10
 
 pos = np.random.uniform(0, 1, (NS, 2))
 color = np.ones((NS, 4)) * (0, 0, 0, 1)
@@ -41,7 +41,7 @@ def update(frame):
     size += (SIZE_MAX - SIZE_MIN) / NS
 
     # Reset specific ring
-    i = frame % 50
+    i = frame % NS
     size[i] = SIZE_MIN
 
     # Update scatter object
@@ -54,7 +54,7 @@ def update(frame):
 
 def showAnimation():
     init()
-    anim = animation.FuncAnimation(fig, update, interval = 10, blit = True, frames = 200)
+    anim = animation.FuncAnimation(fig, update, interval = 50, blit = True, frames = 200)
     plt.show()
 
 def main():
