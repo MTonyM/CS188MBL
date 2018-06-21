@@ -21,7 +21,7 @@ color[:,2] = np.linspace(0, 1, NS)
 fig = plt.figure(num = "Bike Simulation", figsize=(6,6), facecolor='white')
 
 def init():
-    global size, scat #, line
+    global size, scat , line
 
     # New axis over the whole figure, no frame and a 1:1 aspect ratio
     ax = fig.add_axes([0, 0, 1, 1], frameon = False, aspect = 1)
@@ -31,7 +31,7 @@ def init():
 
     # Scatter plot
     scat = ax.scatter(pos[:,0], pos[:,1], s=size, lw=0.5, edgecolors=color, facecolors=color)
-    # line = ax.plot([1,1],[0,np.cos(1)], color ='red', linewidth=1.5, linestyle="--")
+    line = ax.plot([1,0],[0,0], color ='red', linewidth=1.5, linestyle="--")
 
     # Ensure limits are [0,1] and remove ticks
     ax.set_xlim(0, 1), ax.set_xticks([])
@@ -56,7 +56,7 @@ def update(frame):
     scat.set_offsets(pos)
 
     # Return the modified object
-    return scat,
+    return scat, # line
 
 def showAnimation():
     init()
