@@ -6,7 +6,7 @@ ALL_STATIONS = {}
 
 NUM_STATIONS = 3
 
-CALL_SCHEDULER = [NUM_STATIONS]
+CALL_SCHEDULER = {}
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
@@ -80,7 +80,7 @@ def generateDispatcherNumbers(start, nBikes):
 def bikeScheduler(remains, rewards):
     return schedules # A set of how much bikes for each station
 
-def scheduler(env):
+def scheduler(env, remains, rewards):
     pass # The process scheduling the bikes at the end of the day
 
 class Buffer:
@@ -105,6 +105,7 @@ class Map:
             pos_y = i + 1
             init_bike = 100
             ALL_STATIONS[i] = Station(env, (pos_x, pos_y), i, init_bike)
+            CALL_SCHEDULER[i] = env.event()
 
 class Station:
     def __init__(self, env, position, idx, initial):
@@ -121,8 +122,13 @@ class Station:
 
     def run(self):
         while True:
+            # Running one day of bike riding
             yield self.env.process(self.one_day())
-            yield self.env.timeout(20)
+            # Make sure the last dispatch of day finished
+            while not self.buf.isNULL:
+                yield self.env.timeout(20)
+            # Tell scheduler that this station is ready
+            CALL_SCHEDULER[self.getIndex()].succeed()
 
     def dispatcher(self):
         while True:
@@ -181,7 +187,7 @@ class Station:
 def main():
     env = simpy.Environment()
     Map(env)
-    env.run(until=720)
+    env.run(until=800)
 
 if __name__ == '__main__':
     main()
