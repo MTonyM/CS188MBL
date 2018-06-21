@@ -44,6 +44,7 @@ def update(frame):
 
     # line = ax.plot([0.5,0.8],[0.5,0.7], color ='red', linewidth=1.5, linestyle="-")
     # line.set_data([0.3,0.3],[0.5,0.8])
+    line.set_linewidth(2.0)
 
     # Reset specific ring
     # i = frame % NS
