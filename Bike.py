@@ -2,6 +2,8 @@ import simpy
 import random
 import math
 
+import Scheduler
+
 ALL_STATIONS = {}
 
 NUM_STATIONS = 3
