@@ -5,8 +5,26 @@ import math
 ALL_STATIONS = {}
 
 NUM_STATIONS = 3
+SLICES = 72
 
-CALL_SCHEDULER = {}
+CALL_SCHEDULER = []
+
+SAMPLES = []
+REWARDS = []
+
+def init_samples():
+    for _ in range(NUM_STATIONS):
+        SAMPLES.append([])
+        for _ in range(SLICES):
+            SAMPLES.append(0)
+
+def init_rewards():
+    for _ in range(NUM_STATIONS):
+        REWARDS.append(0)
+
+def init_caller(env):
+    for i in range(NUM_STATIONS):
+        CALL_SCHEDULER[i] = env.event()
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
@@ -77,11 +95,25 @@ def generateDispatcherNumbers(start, nBikes):
 
     return numbers
 
-def bikeScheduler(remains, rewards):
-    return schedules # A set of how much bikes for each station
+class BikeScheduler:
+    def __init__(self, env):
+        self.env = env
+        self.process = env.process(self.scheduler())
 
-def scheduler(env, remains, rewards):
-    pass # The process scheduling the bikes at the end of the day
+    def bikeScheduler(self, remains, rewards):
+        schedules = []
+        return schedules # A set of how much bikes for each station
+
+    def scheduler(self):
+        # The process scheduling the bikes at the end of the day
+        while True:
+            # Wait for call schedulers
+            yield simpy.events.AllOf(self.env, CALL_SCHEDULER)
+            init_caller(self.env) # Recreate caller triggers
+            # print("DAY")
+
+            # Call scheduler's algorithm
+            schedules = self.bikeScheduler(SAMPLES, REWARDS)
 
 class Buffer:
     def __init__(self):
@@ -105,7 +137,7 @@ class Map:
             pos_y = i + 1
             init_bike = 100
             ALL_STATIONS[i] = Station(env, (pos_x, pos_y), i, init_bike)
-            CALL_SCHEDULER[i] = env.event()
+            CALL_SCHEDULER.append(env.event())
 
 class Station:
     def __init__(self, env, position, idx, initial):
@@ -129,6 +161,7 @@ class Station:
                 yield self.env.timeout(20)
             # Tell scheduler that this station is ready
             CALL_SCHEDULER[self.getIndex()].succeed()
+            yield self.env.timeout(20)
 
     def dispatcher(self):
         while True:
@@ -149,7 +182,7 @@ class Station:
                 s.bikes.put(scheme[dest[0]])
 
     def one_day(self):
-        for _ in range(72):
+        for i in range(SLICES):
             # Going out
             print("time: " + str(self.env.now))
             print(str(self.idx)+": "+str(self.bikes.level))
@@ -185,8 +218,11 @@ class Station:
         return self.idx
 
 def main():
+    init_samples()
+    init_rewards()
     env = simpy.Environment()
     Map(env)
+    BikeScheduler(env)
     env.run(until=800)
 
 if __name__ == '__main__':
