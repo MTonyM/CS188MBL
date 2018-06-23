@@ -15,10 +15,10 @@ SAMPLES = []
 REWARDS = []
 
 def init_samples():
-    for _ in range(NUM_STATIONS):
+    for i in range(NUM_STATIONS):
         SAMPLES.append([])
         for _ in range(SLICES):
-            SAMPLES.append(0)
+            SAMPLES[i].append(0)
 
 def init_rewards():
     for _ in range(NUM_STATIONS):
@@ -185,9 +185,10 @@ class Station:
 
     def one_day(self):
         for i in range(SLICES):
+            SAMPLES[self.idx][i] = self.bikes.level # Record samples
             # Going out
-            print("time: " + str(self.env.now))
-            print(str(self.idx)+": "+str(self.bikes.level))
+            # print("time: " + str(self.env.now))
+            # print(str(self.idx)+": "+str(self.bikes.level))
 
             ''' The distribution would be modified upon hypothesis '''
             outBike = out_distri_uniform(1, 20)
@@ -202,8 +203,9 @@ class Station:
                 else:
                     outBike = 0
 
-            print("time: " + str(self.env.now))
-            print(str(self.idx)+": "+str(self.bikes.level))
+            # print("time: " + str(self.env.now))
+            # print(str(self.idx)+": "+str(self.bikes.level))
+            REWARDS[self.idx] += outBike # Record usage as rewards
 
             # Dispatcher
             self.buf.push(outBike)
