@@ -13,6 +13,7 @@ CALL_SCHEDULER = []
 
 SAMPLES = []
 REWARDS = []
+TOTAL_REWARDS_EACHDAY = []
 
 def init_samples():
     for i in range(NUM_STATIONS):
@@ -27,6 +28,12 @@ def init_rewards():
 def init_caller(env):
     for i in range(NUM_STATIONS):
         CALL_SCHEDULER[i] = env.event()
+
+def record_total_rewards():
+    reward = 0
+    for r in REWARDS:
+        reward += r
+    TOTAL_REWARDS_EACHDAY.append(r)
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
@@ -117,6 +124,9 @@ class BikeScheduler:
             yield simpy.events.AllOf(self.env, CALL_SCHEDULER)
             init_caller(self.env) # Recreate caller triggers
             # print("DAY")
+
+            # Record the total rewards at the end of the day
+            record_total_rewards()
 
             # Call scheduler's algorithm
             schedules = self.bikeScheduler(SAMPLES, REWARDS)
@@ -243,6 +253,8 @@ def main():
     Map(env)
     BikeScheduler(env)
     env.run(until=800)
+
+    print(TOTAL_REWARDS_EACHDAY)
 
 if __name__ == '__main__':
     main()
