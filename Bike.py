@@ -16,14 +16,23 @@ REWARDS = []
 TOTAL_REWARDS_EACHDAY = []
 
 def init_samples():
-    for i in range(NUM_STATIONS):
-        SAMPLES.append([])
-        for _ in range(SLICES):
-            SAMPLES[i].append(0)
+    if len(SAMPLES) == 0:
+        for i in range(NUM_STATIONS):
+            SAMPLES.append([])
+            for _ in range(SLICES):
+                SAMPLES[i].append(0)
+    else:
+        for i in range(NUM_STATIONS):
+            for j in range(SLICES):
+                SAMPLES[i][j] = 0
 
 def init_rewards():
-    for _ in range(NUM_STATIONS):
-        REWARDS.append(0)
+    if len(REWARDS) == 0:
+        for _ in range(NUM_STATIONS):
+            REWARDS.append(0)
+    else:
+        for i in range(NUM_STATIONS):
+            REWARDS[i] = 0
 
 def init_caller(env):
     for i in range(NUM_STATIONS):
@@ -130,6 +139,10 @@ class BikeScheduler:
 
             # Call scheduler's algorithm
             schedules = self.bikeScheduler(SAMPLES, REWARDS)
+
+            # Init samples and rewards
+            init_samples()
+            init_rewards()
 
             # Do scheduling
             if len(schedules) != NUM_STATIONS:
@@ -252,7 +265,7 @@ def main():
     env = simpy.Environment()
     Map(env)
     BikeScheduler(env)
-    env.run(until=800)
+    env.run(until=7250)
 
     print(TOTAL_REWARDS_EACHDAY)
 
