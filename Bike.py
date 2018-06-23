@@ -103,7 +103,11 @@ class BikeScheduler:
         self.process = env.process(self.scheduler())
 
     def bikeScheduler(self, remains, rewards):
+        # 1 Do nothing for scheduling
         schedules = []
+
+        # 2 Simple naive greedy method
+
         return schedules # A set of how much bikes for each station
 
     def scheduler(self):
@@ -116,6 +120,17 @@ class BikeScheduler:
 
             # Call scheduler's algorithm
             schedules = self.bikeScheduler(SAMPLES, REWARDS)
+
+            # Do scheduling
+            if len(schedules) != NUM_STATIONS:
+                pass
+            else:
+                for i in range(NUM_STATIONS):
+                    s = getStationFromIndex(i)
+                    if s.bikes.level != 0:
+                        yield s.bikes.get(s.bikes.level)
+                    if schedules[i] != 0:
+                        yield s.bikes.put(schedules[i])
 
 class Buffer:
     def __init__(self):
@@ -181,7 +196,7 @@ class Station:
                 yield self.env.timeout(dest[1] - time)
                 time = dest[1]
                 s = getStationFromIndex(dest[0])
-                s.bikes.put(scheme[dest[0]])
+                yield s.bikes.put(scheme[dest[0]])
 
     def one_day(self):
         for i in range(SLICES):
