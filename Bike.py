@@ -13,6 +13,7 @@ CALL_SCHEDULER = []
 
 SAMPLES = []
 REWARDS = []
+ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
 
 def init_samples():
@@ -33,6 +34,20 @@ def init_rewards():
     else:
         for i in range(NUM_STATIONS):
             REWARDS[i] = 0
+
+def init_allflows():
+    if len(ALL_FLOWS) == 0:
+        for i in range(NUM_STATIONS):
+            ALL_FLOWS.append([])
+            for j in range(NUM_STATIONS):
+                ALL_FLOWS[i].append([])
+                for _ in range(SLICES):
+                    ALL_FLOWS[i][j].append(0)
+    else:
+        for i in range(NUM_STATIONS):
+            for j in range(NUM_STATIONS):
+                for k in range(SLICES):
+                    ALL_FLOWS[i][j][k] = 0
 
 def init_caller(env):
     for i in range(NUM_STATIONS):
