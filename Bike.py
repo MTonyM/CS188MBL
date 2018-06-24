@@ -144,10 +144,11 @@ class BikeScheduler:
         # schedules = []
 
         # 2 Simple naive greedy method
-        schedules = algo.naive_scheduler(remains, rewards)
+        # schedules = algo.naive_scheduler(remains, rewards)
         # print(schedules)
 
         # 3 Reinforcement Learning
+        schedules = algo.greedy_scheduler(np.ceil(flows), rewards)
 
         return schedules # A set of how much bikes for each station
 
@@ -179,7 +180,7 @@ class BikeScheduler:
                     if s.bikes.level != 0:
                         yield s.bikes.get(s.bikes.level)
                     if schedules[i] != 0:
-                        yield s.bikes.put(schedules[i])
+                        yield s.bikes.put(int(schedules[i]))
 
 class Buffer:
     def __init__(self):

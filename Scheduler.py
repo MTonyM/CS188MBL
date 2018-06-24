@@ -23,7 +23,7 @@ class Scheduler:
         self.last_assignment = assignment
         return assignment
 
-    def greedy_schedule(self, true_model_sample, usage_vector):
+    def greedy_scheduler(self, true_model_sample, usage_vector):
         self.virtual_model = np.ceil(self.alpha * self.virtual_model + (1-self.alpha) *true_model_sample)
         # print(self.virtual_model)
         # extract feature from virtual model.
@@ -71,7 +71,7 @@ def generation(cdd, vm, total, w):
     action_ooxx = []
     for i in range(5):
         action_ooxx.append(action[index[19 - i]])
-    print(max(qvals), end='->')
+    # print(max(qvals), end='->')
     return action_ooxx
 
 
@@ -156,18 +156,18 @@ def main():
     # print(sample_matrix[0])
     # print(simulate(sample_matrix, usage_vector))
 
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
-    sche.greedy_schedule(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
+    sche.greedy_scheduler(sample_matrix, usage_vector)
 
     
 if __name__ == '__main__':
