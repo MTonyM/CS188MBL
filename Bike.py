@@ -8,7 +8,7 @@ import Visualize
 
 ALL_STATIONS = {}
 
-NUM_STATIONS = 3
+NUM_STATIONS = 12
 INIT_NUM = 100
 NUM_BIKES = NUM_STATIONS * INIT_NUM
 SLICES = 72
@@ -20,7 +20,7 @@ REWARDS = []
 ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
 
-algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0)
+algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5)
 
 def init_samples():
     if len(SAMPLES) == 0:
@@ -148,8 +148,9 @@ class BikeScheduler:
         # print(schedules)
 
         # 3 Reinforcement Learning
+        # print("start")
         schedules = algo.greedy_scheduler(np.ceil(flows), np.array(rewards))
-        print(schedules)
+        # print(schedules)
 
         return schedules # A set of how much bikes for each station
 
@@ -165,7 +166,9 @@ class BikeScheduler:
             record_total_rewards()
 
             # Call scheduler's algorithm
-            schedules = self.bikeScheduler(ALL_FLOWS, SAMPLES, REWARDS)
+            # print("ready to schedule")
+            schedules = list(self.bikeScheduler(ALL_FLOWS, SAMPLES, REWARDS))
+            # print(schedules)
 
             # Init samples and rewards
             init_samples()
@@ -224,14 +227,19 @@ class Station:
 
     def run(self):
         while True:
-            print("a new day: %d", self.day)
+            # print("a new day: %d", self.day)
             # Running one day of bike riding
             yield self.env.process(self.one_day())
+            # print("one day finish: %d", self.day)
+
             # Make sure the last dispatch of day finished
             while not self.buf.isNULL:
                 yield self.env.timeout(20)
+            # print("last dispatch finish: %d", self.day)
+
             # Tell scheduler that this station is ready
             CALL_SCHEDULER[self.getIndex()].succeed()
+            # print("call to schedule: %d", self.day)
             yield self.env.timeout(20)
             self.day += 1
 

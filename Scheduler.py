@@ -27,18 +27,22 @@ class Scheduler:
         self.virtual_model = np.ceil(self.alpha * self.virtual_model + (1-self.alpha) *true_model_sample)
         # print(self.virtual_model)
         # extract feature from virtual model.
+        # print(true_model_sample.size)
+        # print(usage_vector.size)
         if sum(self.last_assignment) == 0:
             temp_ass = np.ones((1, self.station_num)) * int(self.total / self.station_num)
             self.last_assignment = temp_ass[0]
             return self.last_assignment
         else:
             f, Q_val = Q(self.virtual_model, self.last_assignment, self.w1)
+            # print("compute %d", Q_val)
 
             true_rewards = sum(usage_vector)
             diff = true_rewards - Q_val
             self.w1 = self.w1 + 0.1*diff*f[0]
-            self.w1 = 1
+            # self.w1 = 1
             # find action(generating)
+            # print(self.w1)
             action_candidate = [self.last_assignment / sum(self.last_assignment)]
             for _ in range(34):
                 # print(self.last_assignment.shape)
@@ -46,14 +50,17 @@ class Scheduler:
                 # print(random_vct.shape)
                 action_candidate.append(random_vct / sum(random_vct))
             for iter in range(6):
+                # print("iter")
                 action_candidate = generation(action_candidate, self.virtual_model, self.total, self.w1)
                 # print(action_candidate)
                 action_candidate = ooxx(action_candidate)
+                # print(action_candidate)
 
         # print(1, )
+        # print("after generation")
         assignment = action_candidate[0]
         self.last_assignment = assignment
-        print(assignment)
+        # print(assignment)
         return assignment
 
 
