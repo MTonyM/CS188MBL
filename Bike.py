@@ -1,12 +1,16 @@
 import simpy
 import random
 import math
+import numpy as np
 
 import Scheduler
+import Visualize
 
 ALL_STATIONS = {}
 
 NUM_STATIONS = 3
+INIT_NUM = 100
+NUM_BIKES = NUM_STATIONS * INIT_NUM
 SLICES = 72
 
 CALL_SCHEDULER = []
@@ -15,6 +19,8 @@ SAMPLES = []
 REWARDS = []
 ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
+
+algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0)
 
 def init_samples():
     if len(SAMPLES) == 0:
@@ -37,16 +43,16 @@ def init_rewards():
 
 def init_allflows():
     if len(ALL_FLOWS) == 0:
-        for i in range(NUM_STATIONS):
+        for i in range(SLICES):
             ALL_FLOWS.append([])
             for j in range(NUM_STATIONS):
                 ALL_FLOWS[i].append([])
-                for _ in range(SLICES):
+                for _ in range(NUM_STATIONS):
                     ALL_FLOWS[i][j].append(0)
     else:
-        for i in range(NUM_STATIONS):
+        for i in range(SLICES):
             for j in range(NUM_STATIONS):
-                for k in range(SLICES):
+                for k in range(NUM_STATIONS):
                     ALL_FLOWS[i][j][k] = 0
 
 def init_caller(env):
@@ -133,11 +139,15 @@ class BikeScheduler:
         self.env = env
         self.process = env.process(self.scheduler())
 
-    def bikeScheduler(self, remains, rewards):
+    def bikeScheduler(self, flows, remains, rewards):
         # 1 Do nothing for scheduling
-        schedules = []
+        # schedules = []
 
         # 2 Simple naive greedy method
+        schedules = algo.naive_scheduler(remains, rewards)
+        # print(schedules)
+
+        # 3 Reinforcement Learning
 
         return schedules # A set of how much bikes for each station
 
@@ -153,11 +163,12 @@ class BikeScheduler:
             record_total_rewards()
 
             # Call scheduler's algorithm
-            schedules = self.bikeScheduler(SAMPLES, REWARDS)
+            schedules = self.bikeScheduler(ALL_FLOWS, SAMPLES, REWARDS)
 
             # Init samples and rewards
             init_samples()
             init_rewards()
+            init_allflows()
 
             # Do scheduling
             if len(schedules) != NUM_STATIONS:
@@ -190,7 +201,7 @@ class Map:
         for i in range(NUM_STATIONS):
             pos_x = i
             pos_y = i + 1
-            init_bike = 100
+            init_bike = INIT_NUM
             ALL_STATIONS[i] = Station(env, (pos_x, pos_y), i, init_bike)
             CALL_SCHEDULER.append(env.event())
 
@@ -202,6 +213,7 @@ class Station:
         self.bikes = simpy.Container(env, init = initial)
         self.buf = Buffer()
         self.dispatch_distribution = None
+        self.slice = 0
 
         self.process = env.process(self.run())
         self.dispatcher = env.process(self.dispatcher())
@@ -234,10 +246,12 @@ class Station:
                 yield self.env.timeout(dest[1] - time)
                 time = dest[1]
                 s = getStationFromIndex(dest[0])
+                ALL_FLOWS[self.slice][self.idx][s.getIndex()] = scheme[dest[0]]
                 yield s.bikes.put(scheme[dest[0]])
 
     def one_day(self):
         for i in range(SLICES):
+            self.slice = i
             SAMPLES[self.idx][i] = self.bikes.level # Record samples
             # Going out
             # print("time: " + str(self.env.now))
@@ -277,9 +291,12 @@ class Station:
 def main():
     init_samples()
     init_rewards()
+    init_allflows()
+
     env = simpy.Environment()
     Map(env)
     BikeScheduler(env)
+
     env.run(until=7250)
 
     print(TOTAL_REWARDS_EACHDAY)

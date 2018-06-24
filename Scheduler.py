@@ -10,18 +10,18 @@ class Scheduler:
         self.time = p
         self.total = total
         self.station_table = init_table(n, p)
-        self.alpha = 0
+        self.alpha = alpha
         self.last_assignment = np.array([0] * n)
         self.virtual_model = init_table(n, p)
         self.last_q = 0
         self.w1 = 1.0
 
-    # def naive_scheduler(self, sample_matrix, usage_vector):
-    #     # not related to sample_matrix
-    #     assignment = [int(x / sum(usage_vector) * self.total) for x in usage_vector]
-    #     assignment[-1] = self.total - sum(assignment[:-1])
-    #     self.last_assignment = assignment
-    #     return assignment
+    def naive_scheduler(self, sample_matrix, usage_vector):
+        # not related to sample_matrix
+        assignment = [int(x / sum(usage_vector) * self.total) for x in usage_vector]
+        assignment[-1] = self.total - sum(assignment[:-1])
+        self.last_assignment = assignment
+        return assignment
 
     def greedy_schedule(self, true_model_sample, usage_vector):
         self.virtual_model = np.ceil(self.alpha * self.virtual_model + (1-self.alpha) *true_model_sample)
