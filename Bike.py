@@ -148,7 +148,8 @@ class BikeScheduler:
         # print(schedules)
 
         # 3 Reinforcement Learning
-        schedules = algo.greedy_scheduler(np.ceil(flows), rewards)
+        schedules = algo.greedy_scheduler(np.ceil(flows), np.array(rewards))
+        print(schedules)
 
         return schedules # A set of how much bikes for each station
 
@@ -215,6 +216,7 @@ class Station:
         self.buf = Buffer()
         self.dispatch_distribution = None
         self.slice = 0
+        self.day = 0
 
         self.process = env.process(self.run())
         self.dispatcher = env.process(self.dispatcher())
@@ -222,6 +224,7 @@ class Station:
 
     def run(self):
         while True:
+            print("a new day: %d", self.day)
             # Running one day of bike riding
             yield self.env.process(self.one_day())
             # Make sure the last dispatch of day finished
@@ -230,6 +233,7 @@ class Station:
             # Tell scheduler that this station is ready
             CALL_SCHEDULER[self.getIndex()].succeed()
             yield self.env.timeout(20)
+            self.day += 1
 
     def dispatcher(self):
         while True:
