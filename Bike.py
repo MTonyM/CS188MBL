@@ -12,6 +12,7 @@ NUM_STATIONS = 12
 INIT_NUM = 100
 NUM_BIKES = NUM_STATIONS * INIT_NUM
 SLICES = 72
+TIME = 7250
 
 CALL_SCHEDULER = []
 
@@ -64,6 +65,30 @@ def record_total_rewards():
     for r in REWARDS:
         reward += r
     TOTAL_REWARDS_EACHDAY.append(r)
+
+def record_json(rewards, met):
+    f = open("data\\" + "rewards_" + met + "_" + "sche.json", 'w')
+
+    print("{", file = f)
+
+    print('  "Rewards":[', end = "", file = f)
+    for i in range(len(rewards) - 1):
+        print(str(rewards[i]), end = ",", file = f)
+    print(str(rewards[len(rewards) - 1]) + "],", file = f)
+
+    print('  "Day":[', end = "", file = f)
+    for i in range(len(rewards) - 1):
+        print(str(i + 1), end = ",", file = f)
+    print(str(len(rewards)) + "],", file = f)
+
+    print('  "categ":[', end = "", file = f)
+    for _ in range(len(rewards) - 1):
+        print('"' + met + '"', end = ",", file = f)
+    print('"' + met + '"' + "]", file = f)
+
+    print("}", file = f)
+
+    f.close()
 
 def out_distri_uniform(a, b):
     return random.randint(a, b)
@@ -310,9 +335,12 @@ def main():
     Map(env)
     BikeScheduler(env)
 
-    env.run(until=7250)
+    env.run(until=TIME)
 
     print(TOTAL_REWARDS_EACHDAY)
+    # record_json(TOTAL_REWARDS_EACHDAY, "no")
+    # record_json(TOTAL_REWARDS_EACHDAY, "naive")
+    record_json(TOTAL_REWARDS_EACHDAY, "rl")
 
 if __name__ == '__main__':
     main()

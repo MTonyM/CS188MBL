@@ -39,7 +39,7 @@ class Scheduler:
 
             true_rewards = sum(usage_vector)
             diff = true_rewards - Q_val
-            self.w1 = self.w1 + 0.1*diff*f[0]
+            self.w1 = self.w1 + self.alpha*diff*f[0]
             # self.w1 = 1
             # find action(generating)
             # print(self.w1)
