@@ -3,7 +3,7 @@ import random
 import math
 import numpy as np
 
-import Scheduler
+import Scheduler_backup
 import Visualize
 
 ALL_STATIONS = {}
@@ -21,7 +21,7 @@ REWARDS = []
 ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
 
-algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5, 0.1)
+algo = Scheduler_backup.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5, 0.1)
 
 def init_samples():
     if len(SAMPLES) == 0:
@@ -246,6 +246,10 @@ class Station:
         self.slice = 0
         self.day = 0
 
+        ''' The distribution would be modified upon hypothesis '''
+        self.mean = out_distri_uniform(10, 30)
+        ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
+
         self.process = env.process(self.run())
         self.dispatcher = env.process(self.dispatcher())
         self.going = env.event()
@@ -296,7 +300,8 @@ class Station:
             # print(str(self.idx)+": "+str(self.bikes.level))
 
             ''' The distribution would be modified upon hypothesis '''
-            outBike = out_distri_uniform(1, 20)
+            # outBike = out_distri_uniform(1, 20)
+            outBike = out_distri_uniform(self.mean - 5, self.mean + 5)
             ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
 
             if outBike <= self.bikes.level:
