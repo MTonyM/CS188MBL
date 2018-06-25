@@ -4,13 +4,14 @@ import numpy as np
 
 
 class Scheduler:
-    def __init__(self, total, n, p, alpha):
+    def __init__(self, total, n, p, alpha, beta):
         # self.opt = opt
         self.station_num = n
         self.time = p
         self.total = total
         self.station_table = init_table(n, p)
         self.alpha = alpha
+        self.beta = beta
         self.last_assignment = np.array([0] * n)
         self.virtual_model = init_table(n, p)
         self.last_q = 0
@@ -39,7 +40,7 @@ class Scheduler:
 
             true_rewards = sum(usage_vector)
             diff = true_rewards - Q_val
-            self.w1 = self.w1 + self.alpha*diff*f[0]
+            self.w1 = self.w1 + self.beta*diff*f[0]
             # self.w1 = 1
             # find action(generating)
             # print(self.w1)

@@ -12,7 +12,7 @@ NUM_STATIONS = 12
 INIT_NUM = 100
 NUM_BIKES = NUM_STATIONS * INIT_NUM
 SLICES = 72
-TIME = 7250
+TIME = 14500
 
 CALL_SCHEDULER = []
 
@@ -21,7 +21,7 @@ REWARDS = []
 ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
 
-algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5)
+algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5, 0.1)
 
 def init_samples():
     if len(SAMPLES) == 0:
