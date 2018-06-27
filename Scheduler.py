@@ -13,10 +13,12 @@ class Scheduler:
         self.alpha = alpha
         self.beta = beta
         self.last_assignment = np.array([0] * n)
-        self.virtual_model = init_table(n, p)
+        # self.virtual_model = init_table(n, p)
+        self.virtual_model = np.zeros((p,n,n))
         self.last_q = 0
         self.w1 = 1.0
-        self.w2 = np.array([1.0 -50])
+        self.w2 = np.array([1,-1,1])
+        # print(self.w2)
 
     def naive_scheduler(self, sample_matrix, usage_vector):
         # not related to sample_matrix
@@ -25,7 +27,7 @@ class Scheduler:
         self.last_assignment = assignment
         return assignment
 
-    def greedy_scheduler(self, true_model_sample, usage_vector):
+    def greedy_scheduler1(self, true_model_sample, usage_vector):
         self.virtual_model = np.ceil(self.alpha * self.virtual_model + (1-self.alpha) *true_model_sample)
         # print(self.virtual_model)
         # extract feature from virtual model.
@@ -66,22 +68,36 @@ class Scheduler:
         return assignment
 
     def greedy_scheduler2(self, true_model_sample, usage_vector):
-        self.virtual_model = np.ceil(self.alpha * self.virtual_model + (1-self.alpha) *true_model_sample)
+        print(self.virtual_model[0])
+        if self.virtual_model.all() == 0:
+            self.virtual_model = true_model_sample
+            print('int')
+        else:
+            self.virtual_model = np.ceil( self.alpha * self.virtual_model + (1-self.alpha) * true_model_sample )
+            print('updta')
+        print (true_model_sample[0])
+        # print(true_model_sample[1])
+        print (self.virtual_model[0])
         # print(self.virtual_model)
         # extract feature from virtual model.
         # print(true_model_sample.size)
         # print(usage_vector.size)
+        # print(usage_vector)
         if sum(self.last_assignment) == 0:
             temp_ass = np.ones((1, self.station_num)) * int(self.total / self.station_num)
             self.last_assignment = temp_ass[0]
             return self.last_assignment
         else:
-            f, Q_val = Q2(self.virtual_model, self.last_assignment, self.w1)
-            # print("compute %d", Q_val)
+            # print(self.w2)
+            f, Q_val = Q2(self.virtual_model, self.last_assignment, self.w2)
+            print("compute %d", Q_val)
 
             true_rewards = sum(usage_vector)
+            print ('true rewards', true_rewards)
             diff = true_rewards - Q_val
-            self.w1 = self.w1 + self.beta*diff*f
+            self.w2 = self.w2+ self.beta*diff*f
+            print('f:',f)
+            print('w2 update',self.w2)
             # self.w1 = 1
             # find action(generating)
             # print(self.w1)
@@ -93,7 +109,7 @@ class Scheduler:
                 action_candidate.append(random_vct / sum(random_vct))
             for iter in range(6):
                 # print("iter")
-                action_candidate = generation2(action_candidate, self.virtual_model, self.total, self.w1)
+                action_candidate = generation2(action_candidate, self.virtual_model, self.total, self.w2)
                 # print(action_candidate)
                 action_candidate = ooxx(action_candidate)
                 # print(action_candidate)
@@ -102,7 +118,7 @@ class Scheduler:
         # print("after generation")
         assignment = action_candidate[0]
         self.last_assignment = assignment
-        # print(assignment)
+        print(assignment)
         return assignment
 
 
@@ -112,6 +128,7 @@ def generation1(cdd, vm, total, w):
     for i in range(20):
         action_now = normalize_with_weight(cdd[i], total)
         f, Qval = Q1(vm, action_now, w)
+        print (Qval)
         qvals[i] = Qval
         action.append(action_now)
     index = (np.argsort(qvals))
@@ -128,7 +145,9 @@ def generation2(cdd, vm, total, w):
     for i in range(20):
         action_now = normalize_with_weight(cdd[i], total)
         f, Qval = Q2(vm, action_now, w)
+        # print ('Qval:',Qval)
         qvals[i] = Qval
+ 
         action.append(action_now)
 
     index = (np.argsort(qvals))
@@ -188,9 +207,12 @@ def Q1(vm, a, w):
 def Q2(vm, a, w):
     usage, zero_num =simulate(vm, a)
     f1 = sum(usage)
-    f2 = zero_num
-    f=np.array([f1,f2])
-    return np.array([f1,f2]), f.T.dot(w)
+    f2 = 200*zero_num+5
+    f3 = 10*np.linalg.norm(a,ord=2)
+    f=np.array([f1,f2,f3])
+    # print ('f:',f,'  Q: ',np.dot(f,w.T))
+    # print ('w:',w)
+    return np.array([f1,f2,f3]), np.dot(f,w.T)
 
 def normalize_with_weight(vet, total):
     temp = np.floor(vet / sum(vet) * total)

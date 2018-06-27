@@ -3,7 +3,7 @@ import random
 import math
 import numpy as np
 
-import Scheduler_backup
+import Scheduler
 import Visualize
 
 ALL_STATIONS = {}
@@ -21,7 +21,7 @@ REWARDS = []
 ALL_FLOWS = []
 TOTAL_REWARDS_EACHDAY = []
 
-algo = Scheduler_backup.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.5, 0.1)
+algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.9, 1e-9)
 
 def init_samples():
     if len(SAMPLES) == 0:
@@ -64,7 +64,7 @@ def record_total_rewards():
     reward = 0
     for r in REWARDS:
         reward += r
-    TOTAL_REWARDS_EACHDAY.append(r)
+    TOTAL_REWARDS_EACHDAY.append(reward)
 
 def record_json(rewards, met):
     f = open("data\\" + "rewards_" + met + "_" + "sche.json", 'w')
@@ -130,7 +130,8 @@ def generateDispatcherDistribution(start):
 
         ''' The distribution would be modified upon hypothesis '''
         distance = computeDistance(start, station)
-        distribution[end_id] = math.exp(-0.5 * distance)
+        distribution[end_id] = math.exp(-0.2 * distance)
+        # distribution[end_id] = math.exp(-0.5 * 3)
         ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
 
     # Normalize the distribution
@@ -166,7 +167,9 @@ class BikeScheduler:
 
     def bikeScheduler(self, flows, remains, rewards):
         # 1 Do nothing for scheduling
-        # schedules = []
+        schedules = []
+        for i in range(NUM_STATIONS):
+            schedules.append(INIT_NUM)
 
         # 2 Simple naive greedy method
         # schedules = algo.naive_scheduler(remains, rewards)
@@ -174,7 +177,8 @@ class BikeScheduler:
 
         # 3 Reinforcement Learning
         # print("start")
-        schedules = algo.greedy_scheduler(np.ceil(flows), np.array(rewards))
+        # schedules = algo.greedy_scheduler2(np.ceil(flows), np.array(rewards))
+        # print("check outside schedules")
         # print(schedules)
 
         return schedules # A set of how much bikes for each station
@@ -192,6 +196,11 @@ class BikeScheduler:
 
             # Call scheduler's algorithm
             # print("ready to schedule")
+            # print("check input")
+            # print(ALL_FLOWS[0])
+            # print(ALL_FLOWS[1])
+
+            # print(ALL_FLOWS[71])
             schedules = list(self.bikeScheduler(ALL_FLOWS, SAMPLES, REWARDS))
             # print(schedules)
 
@@ -210,6 +219,8 @@ class BikeScheduler:
                         yield s.bikes.get(s.bikes.level)
                     if schedules[i] != 0:
                         yield s.bikes.put(int(schedules[i]))
+                    # print("check putting")
+                    # print(s.bikes.level)
 
 class Buffer:
     def __init__(self):
@@ -231,7 +242,15 @@ class Map:
         for i in range(NUM_STATIONS):
             pos_x = i
             pos_y = i + 1
+
+            ''' Initial Number '''
             init_bike = INIT_NUM
+            # if i == 1:
+            #     init_bike = NUM_BIKES
+            # else:
+            #     init_bike = 0
+            '''--- --- --- --- '''
+
             ALL_STATIONS[i] = Station(env, (pos_x, pos_y), i, init_bike)
             CALL_SCHEDULER.append(env.event())
 
@@ -277,6 +296,8 @@ class Station:
             yield self.going
             
             scheme = generateDispatcherNumbers(self,self.buf.pop())
+            # print("check scheme")
+            # print(scheme)
             preorder = {}
             for sid in scheme.keys():
                 preorder[sid] = computeTransitionTime(self, ALL_STATIONS[sid])
@@ -288,8 +309,15 @@ class Station:
                 yield self.env.timeout(dest[1] - time)
                 time = dest[1]
                 s = getStationFromIndex(dest[0])
+                # print("check records")
+                # print(scheme[dest[0]])
+                # print(self.idx, s.getIndex(), scheme[dest[0]])
                 ALL_FLOWS[self.slice][self.idx][s.getIndex()] = scheme[dest[0]]
+                # print("check ALL_FLOWS")
+                # print(ALL_FLOWS[self.slice][self.idx][s.getIndex()])
                 yield s.bikes.put(scheme[dest[0]])
+            print("results " , self.slice)
+            print(np.array(ALL_FLOWS[self.slice]))
 
     def one_day(self):
         for i in range(SLICES):
@@ -301,7 +329,13 @@ class Station:
 
             ''' The distribution would be modified upon hypothesis '''
             # outBike = out_distri_uniform(1, 20)
-            outBike = out_distri_uniform(self.mean - 5, self.mean + 5)
+            outBike = out_distri_uniform(self.mean - 5, self.mean + 5) * 0+1
+            if self.idx % 2 == 0 and i <= 36:
+                outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
+            if self.idx % 2 == 1 and i > 36:
+                outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
+            # if self.idx > 4:
+            #     outBike = 1
             ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
 
             if outBike <= self.bikes.level:
@@ -315,6 +349,8 @@ class Station:
 
             # print("time: " + str(self.env.now))
             # print(str(self.idx)+": "+str(self.bikes.level))
+            # print("check needs")
+            # print(outBike)
             REWARDS[self.idx] += outBike # Record usage as rewards
 
             # Dispatcher
@@ -344,8 +380,8 @@ def main():
 
     print(TOTAL_REWARDS_EACHDAY)
     # record_json(TOTAL_REWARDS_EACHDAY, "no")
-    # record_json(TOTAL_REWARDS_EACHDAY, "naive")
-    record_json(TOTAL_REWARDS_EACHDAY, "rl")
+    record_json(TOTAL_REWARDS_EACHDAY, "naive")
+    # record_json(TOTAL_REWARDS_EACHDAY, "rl")
 
 if __name__ == '__main__':
     main()
