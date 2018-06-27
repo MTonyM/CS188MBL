@@ -23,6 +23,7 @@ TOTAL_REWARDS_EACHDAY = []
 
 algo = Scheduler.Scheduler(NUM_BIKES, NUM_STATIONS, SLICES, 0.9, 1e-9)
 
+
 def init_samples():
     if len(SAMPLES) == 0:
         for i in range(NUM_STATIONS):
@@ -34,6 +35,7 @@ def init_samples():
             for j in range(SLICES):
                 SAMPLES[i][j] = 0
 
+
 def init_rewards():
     if len(REWARDS) == 0:
         for _ in range(NUM_STATIONS):
@@ -41,6 +43,7 @@ def init_rewards():
     else:
         for i in range(NUM_STATIONS):
             REWARDS[i] = 0
+
 
 def init_allflows():
     if len(ALL_FLOWS) == 0:
@@ -56,15 +59,18 @@ def init_allflows():
                 for k in range(NUM_STATIONS):
                     ALL_FLOWS[i][j][k] = 0
 
+
 def init_caller(env):
     for i in range(NUM_STATIONS):
         CALL_SCHEDULER[i] = env.event()
+
 
 def record_total_rewards():
     reward = 0
     for r in REWARDS:
         reward += r
     TOTAL_REWARDS_EACHDAY.append(reward)
+
 
 def record_json(rewards, met):
     f = open("data\\" + "rewards_" + met + "_" + "sche.json", 'w')
@@ -90,8 +96,10 @@ def record_json(rewards, met):
 
     f.close()
 
+
 def out_distri_uniform(a, b):
     return random.randint(a, b)
+
 
 def normalize(distribution):
     s = 0
@@ -102,21 +110,26 @@ def normalize(distribution):
         nDistribution[location] = distribution[location] / s
     return nDistribution
 
+
 def getStationFromIndex(idx):
     return ALL_STATIONS[idx]
+
 
 def computeTransitionTime(start, end):
     distance = computeDistance(start, end)
 
     ''' The distribution would be modified upon hypothesis '''
     lower = min(1, distance - 2)
-    return out_distri_uniform(lower, distance + 1) + 0.5
+    # return out_distri_uniform(lower, distance + 1) + 0.5
+    return 0.5
     ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
+
 
 def computeDistance(start, end):
     xs, sy = start.getPosition()
     es, ey = end.getPosition()
     return abs(xs - es) + abs(sy - ey)
+
 
 def generateDispatcherDistribution(start):
     start_id = start.getIndex()
@@ -136,8 +149,9 @@ def generateDispatcherDistribution(start):
 
     # Normalize the distribution
     distribution = normalize(distribution)
-
     return distribution
+
+
 
 def generateDispatcherNumbers(start, nBikes):
     if start.dispatch_distribution == None:
@@ -159,6 +173,7 @@ def generateDispatcherNumbers(start, nBikes):
                 break
 
     return numbers
+
 
 class BikeScheduler:
     def __init__(self, env):
@@ -196,8 +211,8 @@ class BikeScheduler:
 
             # Call scheduler's algorithm
             # print("ready to schedule")
-            # print("check input")
-            # print(ALL_FLOWS[0])
+            print("check input")
+            print(np.array(ALL_FLOWS[0]))
             # print(ALL_FLOWS[1])
 
             # print(ALL_FLOWS[71])
@@ -294,8 +309,8 @@ class Station:
     def dispatcher(self):
         while True:
             yield self.going
-            
-            scheme = generateDispatcherNumbers(self,self.buf.pop())
+
+            scheme = generateDispatcherNumbers(self, self.buf.pop())
             # print("check scheme")
             # print(scheme)
             preorder = {}
@@ -303,7 +318,7 @@ class Station:
                 preorder[sid] = computeTransitionTime(self, ALL_STATIONS[sid])
 
             # Dispatch bikes
-            order = sorted(preorder.items(), key = lambda item:item[1])
+            order = sorted(preorder.items(), key=lambda item:item[1])
             time = 0
             for dest in order:
                 yield self.env.timeout(dest[1] - time)
@@ -316,8 +331,9 @@ class Station:
                 # print("check ALL_FLOWS")
                 # print(ALL_FLOWS[self.slice][self.idx][s.getIndex()])
                 yield s.bikes.put(scheme[dest[0]])
-            print("results " , self.slice)
-            print(np.array(ALL_FLOWS[self.slice]))
+            # print(self.idx)
+            # print("results", self.slice)
+            # print(np.array(ALL_FLOWS[self.slice]))
 
     def one_day(self):
         for i in range(SLICES):
@@ -325,7 +341,7 @@ class Station:
             SAMPLES[self.idx][i] = self.bikes.level # Record samples
             # Going out
             # print("time: " + str(self.env.now))
-            # print(str(self.idx)+": "+str(self.bikes.level))
+            # print(str(self.f)+": "+str(self.bikes.level))
 
             ''' The distribution would be modified upon hypothesis '''
             # outBike = out_distri_uniform(1, 20)
@@ -334,6 +350,7 @@ class Station:
                 outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
             if self.idx % 2 == 1 and i > 36:
                 outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
+            # print(outBike)
             # if self.idx > 4:
             #     outBike = 1
             ''' --- --- --- --- --- --- --- --- --- --- --- --- -- '''
