@@ -182,9 +182,9 @@ class BikeScheduler:
 
     def bikeScheduler(self, flows, remains, rewards):
         # 1 Do nothing for scheduling
-        schedules = []
-        for i in range(NUM_STATIONS):
-            schedules.append(INIT_NUM)
+        # schedules = []
+        # for i in range(NUM_STATIONS):
+            # schedules.append(INIT_NUM)
 
         # 2 Simple naive greedy method
         # schedules = algo.naive_scheduler(remains, rewards)
@@ -192,7 +192,7 @@ class BikeScheduler:
 
         # 3 Reinforcement Learning
         # print("start")
-        # schedules = algo.greedy_scheduler2(np.ceil(flows), np.array(rewards))
+        schedules = algo.greedy_scheduler2(np.ceil(flows), np.array(rewards))
         # print("check outside schedules")
         # print(schedules)
 
@@ -211,8 +211,8 @@ class BikeScheduler:
 
             # Call scheduler's algorithm
             # print("ready to schedule")
-            print("check input")
-            print(np.array(ALL_FLOWS[0]))
+            # print("check input")
+            # print(np.array(ALL_FLOWS[0]))
             # print(ALL_FLOWS[1])
 
             # print(ALL_FLOWS[71])

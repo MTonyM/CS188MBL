@@ -68,16 +68,16 @@ class Scheduler:
         return assignment
 
     def greedy_scheduler2(self, true_model_sample, usage_vector):
-        print(self.virtual_model[0])
+        # print(self.virtual_model[0])
         if self.virtual_model.all() == 0:
             self.virtual_model = true_model_sample
-            print('int')
+            # print('int')
         else:
             self.virtual_model = np.ceil( self.alpha * self.virtual_model + (1-self.alpha) * true_model_sample )
-            print('updta')
-        print (true_model_sample[0])
+            # print('updta')
+        # print (true_model_sample[0])
         # print(true_model_sample[1])
-        print (self.virtual_model[0])
+        # print (self.virtual_model[0])
         # print(self.virtual_model)
         # extract feature from virtual model.
         # print(true_model_sample.size)
@@ -118,6 +118,7 @@ class Scheduler:
         # print("after generation")
         assignment = action_candidate[0]
         self.last_assignment = assignment
+        print('update assignment')
         print(assignment)
         return assignment
 
@@ -207,8 +208,8 @@ def Q1(vm, a, w):
 def Q2(vm, a, w):
     usage, zero_num =simulate(vm, a)
     f1 = sum(usage)
-    f2 = 200*zero_num+5
-    f3 = 10*np.linalg.norm(a,ord=2)
+    f2 = 2*zero_num+5
+    f3 = 1*np.linalg.norm(a,ord=2)
     f=np.array([f1,f2,f3])
     # print ('f:',f,'  Q: ',np.dot(f,w.T))
     # print ('w:',w)
@@ -260,7 +261,7 @@ def main():
     sample_matrix = init_table(10, 72)
     usage_vector = np.array([100] * 10)
     usage_vector[0] = 0
-    print(usage_vector)
+    # print(usage_vector)
     sample_matrix[:, 0, :] = 0
 
     # print(sample_matrix[0])
