@@ -22,7 +22,8 @@ class Scheduler:
 
     def naive_scheduler(self, sample_matrix, usage_vector):
         # not related to sample_matrix
-        assignment = [int(x / sum(usage_vector) * self.total) for x in usage_vector]
+    
+        assignment = [int( usage_vector[i] / sum(usage_vector) / (self.last_assignment[i]+50) * self.total) for i in range(len(usage_vector))]
         assignment[-1] = self.total - sum(assignment[:-1])
         self.last_assignment = assignment
         return assignment
@@ -102,12 +103,12 @@ class Scheduler:
             # find action(generating)
             # print(self.w1)
             action_candidate = [self.last_assignment / sum(self.last_assignment)]
-            for _ in range(34):
+            for _ in range(50):
                 # print(self.last_assignment.shape)
                 random_vct = np.abs(np.random.randn(self.last_assignment.shape[0]))
                 # print(random_vct.shape)
                 action_candidate.append(random_vct / sum(random_vct))
-            for iter in range(6):
+            for iter in range(20):
                 # print("iter")
                 action_candidate = generation2(action_candidate, self.virtual_model, self.total, self.w2)
                 # print(action_candidate)
@@ -208,8 +209,8 @@ def Q1(vm, a, w):
 def Q2(vm, a, w):
     usage, zero_num =simulate(vm, a)
     f1 = sum(usage)
-    f2 = 2*zero_num+5
-    f3 = 1*np.linalg.norm(a,ord=2)
+    f2 = 5*zero_num+5
+    f3 = 1.5*np.linalg.norm(a,ord=2)
     f=np.array([f1,f2,f3])
     # print ('f:',f,'  Q: ',np.dot(f,w.T))
     # print ('w:',w)
