@@ -187,12 +187,12 @@ class BikeScheduler:
             # schedules.append(INIT_NUM)
 
         # 2 Simple naive greedy method
-        schedules = algo.naive_scheduler(remains, rewards)
+        # schedules = algo.naive_scheduler(remains, rewards)
         # print(schedules)
 
         # 3 Reinforcement Learning
         # print("start")
-        # schedules = algo.greedy_scheduler2(np.ceil(flows), np.array(rewards))
+        schedules = algo.greedy_scheduler2(np.ceil(flows), np.array(rewards))
         # print("check outside schedules")
         # print(schedules)
 
@@ -347,18 +347,19 @@ class Station:
             # outBike = out_distri_uniform(1, 20)
             outBike = out_distri_uniform(self.mean - 3, self.mean + 5) * 0+1
         #--------------------------------------------------------
-            # if self.idx % 5 == 0 :
-            #     outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)  
+            if self.idx % 5 == 0 :
+                # outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)  
+                outBike =28
         #-------------------------------------------            
             # if self.idx % 3 == 0  and i <= 36:
             #     outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
             # if self.idx % 3 == 1 and i > 36:
             #     outBike = out_distri_uniform(self.mean * 10 - 5, self.mean * 10 + 5)
         #-------------------------------------------
-            if self.idx % 3 == 0  and i <= 36:
-                outBike = out_distri_uniform(self.mean * 2 - 10, self.mean * 2 + 10)
-            if self.idx % 3 == 1 and i > 36:
-                outBike = out_distri_uniform(self.mean * 2 - 10, self.mean * 2 + 10)
+            # if self.idx % 3 == 0  and i <= 36:
+            #     outBike = out_distri_uniform(self.mean * 2 - 10, self.mean * 2 + 10)
+            # if self.idx % 3 == 1 and i > 36:
+            #     outBike = out_distri_uniform(self.mean * 2 - 10, self.mean * 2 + 10)
         #-------------------------------------------------------------
             # print(outBike)
             # if self.idx > 4:

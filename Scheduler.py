@@ -34,6 +34,7 @@ class Scheduler:
         # extract feature from virtual model.
         # print(true_model_sample.size)
         # print(usage_vector.size)
+        
         if sum(self.last_assignment) == 0:
             temp_ass = np.ones((1, self.station_num)) * int(self.total / self.station_num)
             self.last_assignment = temp_ass[0]
@@ -84,12 +85,14 @@ class Scheduler:
         # print(true_model_sample.size)
         # print(usage_vector.size)
         # print(usage_vector)
+
         if sum(self.last_assignment) == 0:
             temp_ass = np.ones((1, self.station_num)) * int(self.total / self.station_num)
             self.last_assignment = temp_ass[0]
             return self.last_assignment
         else:
             # print(self.w2)
+            self.w2[2]= 0.9*self.w2[2]
             f, Q_val = Q2(self.virtual_model, self.last_assignment, self.w2)
             print("compute %d", Q_val)
 
